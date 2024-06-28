@@ -6,17 +6,20 @@
 //
 
 import Foundation
+import UIKit
 
 
 // Defining the interface
 
 public protocol URLBuilderInterface {
     func buildURL() -> URL?
+    func isValidURL() throws -> Bool
 }
 
 // Struct
 
 public struct URLComponentsBuilder: URLBuilderInterface {
+    
    // URL Components
     var scheme: String 
     var host: String
@@ -35,8 +38,14 @@ public struct URLComponentsBuilder: URLBuilderInterface {
         var components = URLComponents()
         components.queryItems = queryItems
         components.host = host
-        components.scheme = scheme
         components.path = path
+        components.scheme = scheme
         return components.url
+    }
+    
+    public func isValidURL() throws -> Bool {
+        // only https secure calls are allowed
+        guard let url = buildURL() else {throw NetworkServiceError.badURLString}
+        return (url.scheme == "https" && url.host != "") ? true : false
     }
 }
